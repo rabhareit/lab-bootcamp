@@ -95,10 +95,75 @@ budgetDict_sorted = sorted(budgetDict.items(), key=lambda x: (x[1], x[0]), rever
 # print(budgetDict_sorted)
 n = 0
 for id, budget in budgetDict_sorted:
-    if n < 40:
+    if n < 20:
         print(id)
         print("¥"+"{:,}".format(budget))
         n += 1
     else:
         break
 
+
+###########################
+# 25.
+###########################
+printQNum(25)
+
+
+from pyquery import PyQuery as pq
+
+# with open('./data/big-cities-pageviews.xml') as cities:
+#     content = pq(cities)
+
+
+###########################
+# 27.
+###########################
+printQNum(27)
+
+with open('./data/hamamatsu.txt') as ham:
+    hamamatsu = ham.read()
+    print(re.findall(r'https?://[\w/:%#\$&\?\(\)~\.=\+\-]+', hamamatsu))
+
+
+###########################
+# 28.
+###########################
+    printQNum(28)
+
+    categories = re.findall(r'Category:[^\|\*\]\[]*',hamamatsu)
+    for category in categories:
+        print(category.replace('Category:', ''))
+
+
+###########################
+# 29.
+###########################
+    printQNum(29)
+    highlow = re.findall(r'[^\|]?....high\sC\s=\s....?|[^\|]?....low\sC\s=\s....?', hamamatsu)
+    with open('./data/hamamatsuResult.tsv', 'w') as wr:
+        wr.write('type\tmonth\ttemperature\n')
+        for s in highlow:
+            sp = s.split()
+            if sp[0] == 'year':
+                continue
+            elif sp[1] == 'high':
+                wr.write('最高\t'+sp[0]+'\t'+sp[4]+'\n')
+            elif sp[1] == 'low':
+                wr.write('最低\t'+sp[0]+'\t'+sp[4]+'\n')
+            else:
+                print(sp[1])
+
+
+###########################
+# 30.
+###########################
+printQNum(30)
+
+sen = 'Herzlichen Glückwunsch zum Erreichen der zwanzig Aufgaben! Nächsten Aufgaben sind praktischer für Ihre Forschungsaktivitäten. Habe Spaß!'.lower()
+
+with open('./data/dictionary.csv') as dic:
+    for c in dic:
+        cor = c.split(',')
+        sen = sen.replace(cor[0], cor[1])
+
+    print(sen.replace('\n',''))
