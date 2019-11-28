@@ -152,9 +152,9 @@ def getTitleNumberperYear():
     con = requests.get(requestUrl)
     queryJson = json.loads(con.text)
 
-    with open('./shizuokalib.json', 'w') as tempf:
-        tempf.write(json.dumps(queryJson, indent=2, ensure_ascii=False,))
-        print('done')
+    # with open('./shizuokalib.json', 'w') as tempf:
+    #     tempf.write(json.dumps(queryJson, indent=2, ensure_ascii=False,))
+    #     print('done')
 
     tempDict = {}
     for n in range(1,10000):
