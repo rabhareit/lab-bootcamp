@@ -66,15 +66,17 @@ def getPrice():
                 pair[code] = float(0)
             else:
                 pair[code] = float(price.replace(',', ''))
-                suffix = lquery('.listNext').children().attr('href')
-            if suffix == None:
-                break
-            target = BASE_URL + suffix
+        suffix = lquery('.listNext').children().attr('href')
+        if suffix == None:
+            break
+        target = BASE_URL + suffix
 
     pair_sorted = sorted(pair.items(), reverse=True, key=lambda x:x[1])
         
     for p in pair_sorted:
         print(p)
+
+# getPrice()
 
 ###########################
 # 35.
@@ -100,5 +102,35 @@ def get_stock_info(stock_code):
 
     return result_dict
 
-print(get_stock_info('6058'))
+# print(get_stock_info('6058'))
 
+
+###########################
+# 36.
+###########################
+
+printQNum(36)
+
+
+import json
+
+
+def getCiNiiSearchResult(q, f):
+    CiNii_BASE_URL = 'http://ci.nii.ac.jp/books/opensearch/search?'
+    qparam = '&q=' + q
+    fparam = '&format=' + f
+    requestUrl = CiNii_BASE_URL + qparam + fparam
+    con = requests.get(requestUrl)
+
+    if(f == 'html'):
+        queryHtmtl = pq(con.text, parser=f)
+        # クラス,od名,タグで検索
+    elif(f == 'json'):
+        queryJson = json.loads(con.text)
+        titles = []
+        for n in range(0,10):
+            titles.append(queryJson['@graph'][0]['items'][n]['title'])
+        return titles
+
+for count, t in enumerate(getCiNiiSearchResult('お好み焼き', 'json')):
+    print('{0}, {1}'.format(count+1, t))
