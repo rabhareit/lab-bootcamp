@@ -129,7 +129,7 @@ def getCiNiiSearchResult(q, f):
     elif(f == 'json'):
         queryJson = json.loads(con.text)
         titles = []
-        for n in range(0,10):
+        for n in range(1,10):
             titles.append(queryJson['@graph'][0]['items'][n]['title'])
         return titles
 
