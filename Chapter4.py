@@ -1,7 +1,7 @@
 def printQNum(num):
-    print("\n###########################")
+    print("\n#######################################")
     print("# Q{}.".format(num))
-    print("###########################\n")
+    print("#######################################\n")
 
 import re
 ###########################
@@ -129,7 +129,7 @@ def getCiNiiSearchResult(q, f):
     elif(f == 'json'):
         queryJson = json.loads(con.text)
         titles = []
-        for n in range(1,10):
+        for n in range(0,10):
             titles.append(queryJson['@graph'][0]['items'][n]['title'])
         return titles
 
@@ -173,4 +173,82 @@ def getTitleNumberperYear():
     itemsPerYear = sorted(tempDict.items(), key = lambda x:x[0])
     print(itemsPerYear)
 
-getTitleNumberperYear()
+# getTitleNumberperYear()
+
+
+###########################
+# 38.
+###########################
+
+printQNum(38)
+
+import sys
+
+def simple_search_books(query, count):
+    result = []
+    requestUrl = CiNii_BASE_URL + '&q=' + query + '&format=json&count=' + str(count)
+    con = requests.get(requestUrl)
+
+    queryJson = json.loads(con.text)
+    # print(json.dumps(queryJson, indent=2))
+    try:
+        for n in range(0,len(queryJson['@graph'][0]['items'])):
+            try:
+                result.append({
+                    'title':queryJson['@graph'][0]['items'][n]['title'],
+                    'auther':queryJson['@graph'][0]['items'][n]['dc:creator'],
+                    'detail_url':queryJson['@graph'][0]['items'][n]['@id']
+                })
+            except:
+                result.append({
+                    'title':queryJson['@graph'][0]['items'][n]['title'],
+                    'auther':queryJson['@graph'][0]['items'][n]['dc:publisher'],
+                    'detail_url':queryJson['@graph'][0]['items'][n]['@id']
+                })
+
+        return result
+    except Exception as e:
+        tb = sys.exc_info()
+        e.with_traceback(tb)
+        return None
+
+for count, i in enumerate(simple_search_books('たこ焼き', 10)):
+    print('{0}: {1}'.format(count+1,i))
+
+###########################
+# 39.
+###########################
+
+printQNum(39)
+
+def get_abstract(url):
+    resp = requests.get(url)
+    #    with open('resp.html', 'w')as r:
+    #        r.write(resp.text)
+    lines = pq(resp.text, parser='html')
+    abst = lines('div.toc-body').eq(0).text()
+    if abst != None:
+        return abst
+    else:
+        # return  '「内容説明」が見つかりません。'
+        return None
+
+print(get_abstract('https://ci.nii.ac.jp/ncid/BA66522645'))
+print(get_abstract('http://ci.nii.ac.jp/ncid/BB0521742X'))
+
+
+###########################
+# 40.
+###########################
+
+printQNum(40)
+def search_books(query):
+    result = simple_search_books(query, 100)
+    for t in result:
+        # t.update({'abstract':get_abstract(t['detail_url'])})
+        t['abstract'] = get_abstract(t['detail_url'])
+    return result
+
+# print(search_books('お好み焼き'))
+for count, i in enumerate(search_books('コンピュータ')):
+    print('{0} : {1}'.format(count+1, i))
