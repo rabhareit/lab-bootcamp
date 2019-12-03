@@ -244,6 +244,8 @@ print(get_abstract('http://ci.nii.ac.jp/ncid/BB0521742X'))
 printQNum(40)
 def search_books(query):
     result = simple_search_books(query, 100)
+    if result == None:
+        return None
     for t in result:
         # t.update({'abstract':get_abstract(t['detail_url'])})
         t['abstract'] = get_abstract(t['detail_url'])
