@@ -98,3 +98,76 @@ for count, tp in enumerate(c.most_common()):
     print('%s(%s)\t:\t%d回' % (tp[0][0], tp[0][1], tp[1]))
     if count == 20:
         break
+
+
+###########################
+# 45.
+###########################
+printQNum(45)
+
+from janome.tokenizer import Tokenizer
+import matplotlib.pyplot as plot
+
+tn = Tokenizer()
+
+# wordList = [token.surface for token in tn.tokenize(doc)]
+
+# for w, f in frec.items():
+#     print(w+':'+str(f))
+
+# plot.hist(wordList)
+# plot.show()
+
+
+###########################
+# 46.
+###########################
+printQNum(46)
+
+xAxis = []
+yAxis = []
+
+frec = {}
+# for token in tn.tokenize(doc):
+#     frec.setdefault(token.surface, 0)
+#     frec[token.surface] += 1
+
+# for w, f in frec.items():
+#     xAxis.append(w)
+#     yAxis.append(f)
+
+# plot.scatter(xAxis,yAxis)
+# plot.xlabel('word')
+# plot.ylabel('frec')
+# plot.show()
+
+
+###########################
+# 47.
+###########################
+printQNum(47)
+
+doc = re.sub(r'[「」｜一]', '', doc)
+sentences = re.split('[\n。]', doc)
+
+for s in sentences:
+    print(s.strip())
+print(len(sentences))
+
+
+###########################
+# 48.
+###########################
+printQNum(48)
+
+sentenceFrequency = {}
+
+for w in words:
+    count = 0
+    for sentence in sentences:
+        if w in sentence:
+            count += 1
+    sentenceFrequency[w] = count
+
+for w, f in sentenceFrequency.items():
+    print('%s:%s回' % (w, str(f)))
