@@ -109,6 +109,7 @@ from janome.tokenizer import Tokenizer
 import matplotlib.pyplot as plot
 
 tn = Tokenizer()
+doc = re.sub(r'[「」｜一]', '', doc)
 
 # wordList = [token.surface for token in tn.tokenize(doc)]
 
@@ -127,19 +128,25 @@ printQNum(46)
 xAxis = []
 yAxis = []
 
-frec = {}
-# for token in tn.tokenize(doc):
-#     frec.setdefault(token.surface, 0)
-#     frec[token.surface] += 1
+freq = {}
+for token in tn.tokenize(doc):
+    if token.surface not in ('、','。','\n'):
+        freq.setdefault(token.surface, 0)
+        freq[token.surface] += 1
 
-# for w, f in frec.items():
-#     xAxis.append(w)
-#     yAxis.append(f)
+sortedFreq = sorted(freq.items(), key=lambda x:x[1], reverse=True)
 
-# plot.scatter(xAxis,yAxis)
-# plot.xlabel('word')
-# plot.ylabel('frec')
-# plot.show()
+print(sortedFreq)
+
+for count, f in enumerate(sortedFreq):
+    xAxis.append(count)
+    yAxis.append(f[1])
+
+plot.scatter(xAxis,yAxis)
+plot.yscale('log')
+plot.xlabel('Rank')
+plot.ylabel('freq')
+plot.show()
 
 
 ###########################
@@ -147,7 +154,7 @@ frec = {}
 ###########################
 printQNum(47)
 
-doc = re.sub(r'[「」｜一]', '', doc)
+
 sentences = re.split('[\n。]', doc)
 
 for s in sentences:
