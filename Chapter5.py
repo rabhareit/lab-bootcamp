@@ -8,6 +8,7 @@ def printQNum(num):
 ###########################
 # 41.
 ###########################
+printQNum(41)
 
 import MeCab
 import re
@@ -35,40 +36,46 @@ items = [re.split('[\t,]', line) for line in lines]
 # 一度for文などで要素を生成すると再度生成されなくなる.
 ######################################
 
-words = [item[0] for item in items
+nouns = [item[0] for item in items
     if (item[0] not in ('EOS', '', 't', 'ー')
         and item[1] == '名詞'
         and item[2] == '一般'
     )
 ]
 
-counter = Counter(words)
+counter = Counter(nouns)
+sortedNounsFreq = counter.most_common()
+nounsFreqDic = {}
 with open('resultQ41.txt', 'w') as rslt:
-    for word, count in counter.most_common():
+    for word, count in sortedNounsFreq:
+        nounsFreqDic[word] = count
         rslt.write(f"{word}: {count}\n")
 
 
 ###########################
 # 42.
 ###########################
-
-saWords = [item[0] for item in items
+printQNum(42)
+saNouns = [item[0] for item in items
     if (item[0] not in ('EOS', '', 't', '——')
         and item[1] == '名詞'
         and item[2] == 'サ変接続'
     )
 ]
 
-ct = Counter(saWords)
+ct = Counter(saNouns)
+saNounsFreq = ct.most_common()
+saNounsFreqDic = {}
 with open('resultQ42.txt', 'w') as rslt:
-    for word, count in ct.most_common():
+    for word, count in saNounsFreq:
+        saNounsFreqDic[word] = count
         rslt.write(f"{word}: {count}\n")
 
 
 ###########################
 # 43.
 ###########################
-
+printQNum(43)
 shiftedItems = items.copy()
 
 temp = shiftedItems[0]
@@ -93,8 +100,18 @@ allKiindsOfWords = [ (item[0], item[1]) for item in items
     if (item[0] not in ('EOS', '', 't', 'ー'))
 ]
 
-c = Counter(allKiindsOfWords)
-for count, tp in enumerate(c.most_common()):
+from janome.tokenizer import Tokenizer
+tn = Tokenizer()
+
+termPosFreqDic = {}
+for token in tn.tokenize(doc):
+    pos = token.part_of_speech.split(',')[0]
+    termPosFreqDic.setdefault((token.base_form, pos), 0)
+    termPosFreqDic[(token.base_form, pos)] += 1
+
+sortedTermFreq = sorted(termPosFreqDic.items(), key=lambda x:x[1], reverse=True)
+
+for count, tp in enumerate(sortedTermFreq):
     print('%s(%s)\t:\t%d回' % (tp[0][0], tp[0][1], tp[1]))
     if count == 20:
         break
@@ -105,19 +122,15 @@ for count, tp in enumerate(c.most_common()):
 ###########################
 printQNum(45)
 
-from janome.tokenizer import Tokenizer
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plot
 
-tn = Tokenizer()
-doc = re.sub(r'[「」｜一]', '', doc)
+def plotNounFreqHist():
+    plot.hist(nounsFreqDic.values(), bins=50)
+    plot.savefig('Q45.png')
 
-# wordList = [token.surface for token in tn.tokenize(doc)]
-
-# for w, f in frec.items():
-#     print(w+':'+str(f))
-
-# plot.hist(wordList)
-# plot.show()
+# plotNounFreqHist()
 
 
 ###########################
@@ -128,25 +141,19 @@ printQNum(46)
 xAxis = []
 yAxis = []
 
-freq = {}
-for token in tn.tokenize(doc):
-    if token.surface not in ('、','。','\n'):
-        freq.setdefault(token.surface, 0)
-        freq[token.surface] += 1
-
-sortedFreq = sorted(freq.items(), key=lambda x:x[1], reverse=True)
-
-print(sortedFreq)
-
-for count, f in enumerate(sortedFreq):
-    xAxis.append(count)
+for count, f in enumerate(sortedTermFreq):
+    xAxis.append(count+1)
     yAxis.append(f[1])
 
-plot.scatter(xAxis,yAxis)
-plot.yscale('log')
-plot.xlabel('Rank')
-plot.ylabel('freq')
-plot.show()
+def plotRankAndFreqScater():
+    plot.scatter(xAxis,yAxis)
+    plot.xscale('log')
+    plot.yscale('log')
+    plot.xlabel('Rank')
+    plot.ylabel('freq')
+    plot.savefig('Q46.png')
+
+# plotRankAndFreqScater()
 
 
 ###########################
@@ -154,11 +161,12 @@ plot.show()
 ###########################
 printQNum(47)
 
+sentences = []
+text = re.sub(r'[「」｜一\n]', '', doc)
+for sent in re.split('[。！]', text):
+    if sent != '':
+        sentences.append(sent.strip())
 
-sentences = re.split('[\n。]', doc)
-
-for s in sentences:
-    print(s.strip())
 print(len(sentences))
 
 
@@ -168,13 +176,50 @@ print(len(sentences))
 printQNum(48)
 
 sentenceFrequency = {}
+tempNouns = []
 
-for w in words:
-    count = 0
+for sentence in sentences:
+    tokens = tn.tokenize(sentence)
+    tempNouns.clear()
+
+    for token in tokens:
+        if '名詞' in token.part_of_speech:
+            tempNouns.append(token.base_form)
+
+    for w in nouns:
+        if w in tempNouns:
+            sentenceFrequency.setdefault(w,0)
+            sentenceFrequency[w] += 1
+
+with open('resultQ48.txt', 'w') as rslt:
+    for w, f in sentenceFrequency.items():
+        rslt.write('%s:%s回\n' % (w, str(f)))
+
+
+###########################
+# 49.
+###########################
+printQNum(49)
+
+def getCooccurredTerms(term):
+    cooccurrence = {}
     for sentence in sentences:
-        if w in sentence:
-            count += 1
-    sentenceFrequency[w] = count
+        tokenList = tn.tokenize(sentence)
 
-for w, f in sentenceFrequency.items():
-    print('%s:%s回' % (w, str(f)))
+        chasen = False
+        for token in tokenList:
+            if term in token.base_form:
+                chasen = True
+        if chasen:
+            for token in tokenList:
+                pos = token.part_of_speech.split(',')
+                if pos[0] == '名詞' and pos[1] in ('一般', '固有名詞', 'サ変接続', '形容動詞語幹') and term not in token.base_form:
+                    cooccurrence.setdefault(token.surface, 0)
+                    cooccurrence[token.surface] += 1
+
+    return sorted(cooccurrence.items(), key=lambda x:x[1], reverse=True)
+
+with open('resultQ49.txt', 'w') as rslt:
+    for s in getCooccurredTerms('茶'):
+        rslt.write('%s\t:\t%s回\n' % (s[0], s[1]))
+
