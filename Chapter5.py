@@ -191,9 +191,11 @@ for sentence in sentences:
             sentenceFrequency.setdefault(w,0)
             sentenceFrequency[w] += 1
 
+sortedSF = sorted(sentenceFrequency.items(), key=lambda x:x[1], reverse=True)
+
 with open('resultQ48.txt', 'w') as rslt:
-    for w, f in sentenceFrequency.items():
-        rslt.write('%s:%s回\n' % (w, str(f)))
+    for l in sortedSF:
+        rslt.write('%s:%s回\n' % (l[0], str(l[1])))
 
 
 ###########################
@@ -223,3 +225,42 @@ with open('resultQ49.txt', 'w') as rslt:
     for s in getCooccurredTerms('茶'):
         rslt.write('%s\t:\t%s回\n' % (s[0], s[1]))
 
+
+###########################
+# 50.
+###########################
+printQNum(50)
+
+import itertools
+import math
+
+def sentenceFreq(term):
+    count = 0
+    for sentence in sentences:
+        tokenList = tn.tokenize(sentence)
+        nouns = [token.base_form for token in tokenList if "名詞" in token.part_of_speech]
+        for noun in nouns:
+            if term == noun:
+                count += 1
+    return count
+
+
+def cooccurrence(term1, term2):
+    term1 = "茶"
+    n = len(sentences)
+
+    i = 0
+    for sentence in sentences:
+        if term1 in sentence and term2 in sentence:
+            i += 1
+    
+    freq1 = sentenceFreq(term1)
+    freq2 = sentenceFreq(term2)
+
+    return math.log((n*i)/(freq1*freq2))
+
+
+targets = [sf[0] for sf in sortedSF if sf[1] > 2]
+
+for terms in itertools.permutations(targets, r=2):
+    print(cooccurrence(terms[0], terms[1]))
