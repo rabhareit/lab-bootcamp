@@ -1,2 +1,4 @@
-data
+dat/
 *result*.*
+.DS_Store
+__pycache__
